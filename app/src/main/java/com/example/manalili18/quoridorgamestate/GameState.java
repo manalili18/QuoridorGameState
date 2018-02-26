@@ -1,5 +1,7 @@
 package com.example.manalili18.quoridorgamestate;
 
+import android.util.Log;
+
 /**
  * Created by manalili18 on 2/21/2018.
  */
@@ -17,6 +19,13 @@ public class GameState
     private boolean[][] vertWalls;
 
     private int p1RemainingWalls, p2RemainingWalls;
+
+    public enum Direction{
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT;
+    }
 
     public GameState()
     {
@@ -113,6 +122,40 @@ public class GameState
         }
 
         return result;
+    }
+
+    //TODO: movePawn method
+    public boolean movePawn(int player, Direction dir){
+        //check bounds
+
+        //check if valid move
+        //ie, check for walls, other players
+        switch(dir){
+            case UP:
+                break;
+            case RIGHT:
+                break;
+            case DOWN:
+                break;
+            case LEFT:
+                break;
+            default:
+                Log.i("movePawn","Something went wrong");
+        }
+        return false;
+    }
+
+    //TODO: placeWall method
+    public boolean placeWall(int player, int x, int y){
+        //check bounds
+        return false;
+    }
+
+    //TODO: rotateWall method
+    //TODO: how are we going to identify newly placed walls? does the framework handle this?
+    public boolean rotateWall(int player, int x, int y){
+        //check bounds
+        return false;
     }
 
 
