@@ -7,6 +7,9 @@ package com.example.manalili18.quoridorgamestate;
 public class GameState
 {
 
+    //nux told me to
+    private static final long serialVersionUID = 696969696969420L;
+
     private int turn; // 1 -> player 1, 2 -> player 2
     private int[] p1Pos, p2Pos;
 
@@ -59,6 +62,51 @@ public class GameState
 
         this.p1RemainingWalls = g.p1RemainingWalls;
         this.p2RemainingWalls = g.p2RemainingWalls;
+    }
+
+    @Override
+    public String toString(){
+        String result = "";
+
+        result += "turn%%" + turn + "\n";
+
+        result += "p1Pos%%" + p1Pos[0] + "%%" + p1Pos[1] + "\n";
+
+        result += "p2Pos%%" + p2Pos[0] + "%%" + p2Pos[1] + "\n";
+
+        result += "horzWalls\n";
+
+        result = appendWallMatrix(result, horzWalls);
+        result = appendWallMatrix(result, vertWalls);
+
+        result += "p1RemainingWalls%%" + p1RemainingWalls + "\n";
+        result += "p2RemainingWalls%%" + p2RemainingWalls + "\n";
+
+        return result;
+    }
+
+
+    /**
+     * print each boolean in horzWalls
+     * elements delimited by %%
+     * rows delimited by newlines
+     */
+    private String appendWallMatrix(String ogString, boolean[][] wallMatrix){
+
+        String result = ogString;
+
+        for( boolean[] row : wallMatrix ){
+            int i = 0;
+            for( boolean b : row ){
+                result += b;
+
+                //TODO: formal citation - https://stackoverflow.com/questions/41591107/detect-last-foreach-loop-iteration
+                if(i++ != row.length - 1) result += "%%";
+            }
+            result += "\n";
+        }
+
+        return result;
     }
 
 
