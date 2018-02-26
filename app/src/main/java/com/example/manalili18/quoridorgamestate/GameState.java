@@ -64,6 +64,10 @@ public class GameState
         this.p2RemainingWalls = g.p2RemainingWalls;
     }
 
+    // prints all instance variables
+    // format: instance variable followed by its value(s) delimited by %%
+    // instance variables delimited by newlines
+    // format for 2d boolean array, rows separated by newlines, columns delimited by %%
     @Override
     public String toString(){
         String result = "";
@@ -76,8 +80,8 @@ public class GameState
 
         result += "horzWalls\n";
 
-        result = appendWallMatrix(result, horzWalls);
-        result = appendWallMatrix(result, vertWalls);
+        result += wallMatrixToString(horzWalls);
+        result += wallMatrixToString(vertWalls);
 
         result += "p1RemainingWalls%%" + p1RemainingWalls + "\n";
         result += "p2RemainingWalls%%" + p2RemainingWalls + "\n";
@@ -90,10 +94,12 @@ public class GameState
      * print each boolean in horzWalls
      * elements delimited by %%
      * rows delimited by newlines
+     *
+     * TODO: should this be static?
      */
-    private String appendWallMatrix(String ogString, boolean[][] wallMatrix){
+    private String wallMatrixToString( boolean[][] wallMatrix){
 
-        String result = ogString;
+        String result = "";
 
         for( boolean[] row : wallMatrix ){
             int i = 0;
