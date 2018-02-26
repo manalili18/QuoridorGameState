@@ -20,7 +20,8 @@ public class GameState
 
     private int p1RemainingWalls, p2RemainingWalls;
 
-    public enum Direction{
+    public enum Direction
+    {
         UP,
         DOWN,
         LEFT,
