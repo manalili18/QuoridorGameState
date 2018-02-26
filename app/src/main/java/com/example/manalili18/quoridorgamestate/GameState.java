@@ -78,7 +78,8 @@ public class GameState
     // instance variables delimited by newlines
     // format for 2d boolean array, rows separated by newlines, columns delimited by %%
     @Override
-    public String toString(){
+    public String toString()
+    {
         String result = "";
 
         result += "turn%%" + turn + "\n";
@@ -106,13 +107,16 @@ public class GameState
      *
      * TODO: should this be static?
      */
-    private String wallMatrixToString( boolean[][] wallMatrix){
+    private String wallMatrixToString( boolean[][] wallMatrix)
+    {
 
         String result = "";
 
-        for( boolean[] row : wallMatrix ){
+        for( boolean[] row : wallMatrix )
+        {
             int i = 0;
-            for( boolean b : row ){
+            for( boolean b : row )
+            {
                 result += b;
 
                 //TODO: formal citation - https://stackoverflow.com/questions/41591107/detect-last-foreach-loop-iteration
@@ -125,7 +129,8 @@ public class GameState
     }
 
     //TODO: movePawn method
-    public boolean movePawn(int player, Direction dir){
+    public boolean movePawn(int player, Direction dir)
+    {
         //check bounds
 
         //check if valid move
@@ -146,15 +151,28 @@ public class GameState
     }
 
     //TODO: placeWall method
-    public boolean placeWall(int player, int x, int y){
+    public boolean placeWall(int player, int x, int y)
+    {
         //check bounds
+
+        //check if spot is available (horz and vert)
+        //check if spot is horizontal compatible
+            //place horz wall
+        //else check if spot is vertical compatible
+            //place vert wall
+
         return false;
     }
 
     //TODO: rotateWall method
     //TODO: how are we going to identify newly placed walls? does the framework handle this?
-    public boolean rotateWall(int player, int x, int y){
+    public boolean rotateWall(int player, int x, int y)
+    {
         //check bounds
+        //check if wall exists (vert/horz)
+        //check if rotated wall is valid
+            //flip bool in both matrices
+
         return false;
     }
 
