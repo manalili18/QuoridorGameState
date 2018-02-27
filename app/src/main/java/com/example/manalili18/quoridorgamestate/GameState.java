@@ -2,6 +2,10 @@ package com.example.manalili18.quoridorgamestate;
 
 import android.util.Log;
 
+import static com.example.manalili18.quoridorgamestate.GameState.Direction.DOWN;
+import static com.example.manalili18.quoridorgamestate.GameState.Direction.RIGHT;
+import static com.example.manalili18.quoridorgamestate.GameState.Direction.UP;
+
 import java.io.IOException;
 
 /**
@@ -12,9 +16,9 @@ public class GameState
 {
 
     //nux told me to
-    private static final long serialVersionUID = 696969696969420L;
+    private static final long serialVersionUID = 6969420L;
 
-    private int turn; // 1 -> player 1, 2 -> player 2
+    private int turn; // 0 -> player 1, 1 -> player 2
     private int[] p1Pos, p2Pos;
 
     private boolean[][] horzWalls;
@@ -132,20 +136,27 @@ public class GameState
     }
 
     //TODO: movePawn method
-    public boolean movePawn(int player, Direction dir)
+    public boolean movePawn(int player, Direction dir, int x, int y)
     {
+        //moving player is in first slot of bothPlayers[]
+        int[][] bothPlayers = player == 0 ? new int[][]{p1Pos,p2Pos} : new int[][]{p2Pos,p1Pos};
         //check bounds
+        if(player  != 0 || player != 1)
+        {
+            return false;
+        }
 
         //check if valid move
         //ie, check for walls, other players
         switch(dir){
             case UP:
-                break;
-            case RIGHT:
-                break;
             case DOWN:
+                moveUpDown(bothPlayers[0],bothPlayers[1],dir);
                 break;
+
+            case RIGHT:
             case LEFT:
+                moveRightLeft(bothPlayers[player],bothPlayers[1-player],dir);
                 break;
             default:
                 Log.i("movePawn","Something went wrong");
@@ -153,6 +164,130 @@ public class GameState
         return false;
     }
 
+    /**
+     * The function of moveUpDown is to try and move the current player's pawn
+     * @param currentPlayer active moving player
+     * @param otherPlayer other dude
+     * @param dir up or down
+     * @return succesful/valid move
+     */
+    private boolean moveUpDown(int[] currentPlayer, int[] otherPlayer, Direction dir)
+    {
+        int mod = 1; //indicate direction of movement
+        //reverse mod if going down
+        if(dir == DOWN)
+        {
+            mod = -1;
+        }
+
+        if(currentPlayer[1] == 0 && mod == 1) //player is trying to move past top
+        {
+            return false;
+        }
+        else if(currentPlayer[1] == 8 && mod == -1) // player is trying to move past bot
+        {
+            return false;
+        }
+
+        try
+        {
+            //is there a player adjacent?
+            if(otherPlayer[0] == currentPlayer[0] && otherPlayer[1] == currentPlayer[1]-1*mod)
+            {
+                //TODO: implement jumps cases
+                if(horzWalls[currentPlayer[0] - 2*mod][currentPlayer[1]] ||
+                        horzWalls[currentPlayer[0]][currentPlayer[1] - 2*mod] ||
+                        (otherPlayer[1]==0 && dir == UP) ||
+                        (otherPlayer[1]==8 && dir == DOWN))
+                {
+                    return false; //todo deal with diagonal moves
+                }
+                else
+                {
+                    //do move
+                    currentPlayer[1] = currentPlayer[1]-2*mod;
+                    return true;
+                }
+            } //if - adjacency check
+
+            //check if wall is directly adjacent
+            else if (horzWalls[currentPlayer[0] - 1*mod][currentPlayer[1]] ||
+                    horzWalls[currentPlayer[0]][currentPlayer[1] - 1*mod])
+            {
+                currentPlayer[1] = currentPlayer[1]-1*mod; //increment y
+                return true;
+            }
+        }
+        catch(Exception e)
+        {
+            return false;
+            //todo handle a specific exception
+        }
+
+        return false;
+    }
+
+
+    /**
+     * The function of moveRightLeft is to try and move the current player's pawn
+     * @param currentPlayer active moving player
+     * @param otherPlayer other dude
+     * @param dir right or left
+     * @return succesful/valid move
+     */
+    private boolean moveRightLeft(int[] currentPlayer, int[] otherPlayer, Direction dir)
+    {
+        int mod = 1; //indicate direction of movement
+
+        if(dir == RIGHT)
+        {
+            mod = -1;
+        }
+
+        if(currentPlayer[0] == 0 && mod == 1) //player is trying to move past top
+        {
+            return false;
+        }
+        else if(currentPlayer[0] == 8 && mod == -1)
+        {
+            return false;
+        }
+
+        try
+        {
+            //check for jump over other player case
+            if(otherPlayer[1] == currentPlayer[1] && otherPlayer[0] == currentPlayer[0]-1*mod)
+            {
+                //check if there are walls behind the adjacent players
+                if(vertWalls[currentPlayer[1] - 2*mod][currentPlayer[0]] ||
+                        vertWalls[currentPlayer[1]][currentPlayer[0] - 2*mod] ||
+                        otherPlayer[0]==0)
+                {
+                    return false; //todo deal with diagonal moves
+                }
+                else
+                {
+                    currentPlayer[0] = currentPlayer[0]-2*mod;
+                    return true;
+                }
+            }
+            else if (horzWalls[currentPlayer[1] - 1*mod][currentPlayer[0]] ||
+                    horzWalls[currentPlayer[1]][currentPlayer[0] - 1*mod])
+            {
+                currentPlayer[0] = currentPlayer[0]-1*mod; //increment y
+                return true;
+            }
+        }
+        catch(Exception e)
+        {
+            return false;
+            //todo handle a specific exception
+        }
+        return false;
+    }
+
+
+    //TODO: placeWall method
     //placeWall
     //Checks for which player is placing the wall
     //Returns false if player does not have any available walls
