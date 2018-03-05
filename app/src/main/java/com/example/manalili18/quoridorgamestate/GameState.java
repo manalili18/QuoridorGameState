@@ -6,6 +6,8 @@ import static com.example.manalili18.quoridorgamestate.GameState.Direction.DOWN;
 import static com.example.manalili18.quoridorgamestate.GameState.Direction.RIGHT;
 import static com.example.manalili18.quoridorgamestate.GameState.Direction.UP;
 
+import java.io.IOException;
+
 /**
  * Created by manalili18 on 2/21/2018.
  */
@@ -493,30 +495,123 @@ public class GameState
     }
 
     //TODO: placeWall method
+    //placeWall
+    //Checks for which player is placing the wall
+    //Returns false if player does not have any available walls
+    //Checks if placeWall is a valid move
+    //TODO: Figure out how to deal with finalize turn and closed path
     public boolean placeWall(int player, int x, int y)
     {
-        //check bounds
-
-        //check if spot is available (horz and vert)
-        //check if spot is horizontal compatible
-            //place horz wall
-        //else check if spot is vertical compatible
-            //place vert wall
-
-        return false;
+        try {
+            //check bounds
+            if (player == 1) // player 1
+            {
+                if (p1RemainingWalls == 0)
+                    return false;
+                    //check if spot is available (horz and vert)
+                else if (horzWalls[x][y] == false && vertWalls[x][y] == false) // default to horzWall place first
+                {
+                    if ((horzWalls[x - 1][y] == true || horzWalls[x + 1][y] == true) && (vertWalls[x][y - 1] == false || vertWalls[x][y + 1] == false)) {
+                        vertWalls[x][y] = true;
+                        p1RemainingWalls--;
+                        return true;
+                    } else if ((vertWalls[x][y - 1] == true || vertWalls[x][y + 1] == true) && (horzWalls[x - 1][y] == false || horzWalls[x + 1][y] == false)) {
+                        horzWalls[x][y] = true;
+                        p1RemainingWalls--;
+                        return true;
+                    }
+                    // Default Case
+                    else if ((horzWalls[x - 1][y] == false && horzWalls[x + 1][y] == false) && (vertWalls[x][y - 1] == false && vertWalls[x][y + 1] == false)) {
+                        horzWalls[x][y] = true;
+                        p1RemainingWalls--;
+                        return true;
+                    } else
+                        return false;
+                } else
+                    return false;
+            } else if (player == 2) // player 2
+            {
+                if (p2RemainingWalls == 0)
+                    return false;
+                else if (horzWalls[x][y] == false && vertWalls[x][y] == false) // default to horzWall place first
+                {
+                    // Checks for overlapping walls
+                    if ((horzWalls[x - 1][y] == true || horzWalls[x + 1][y] == true) && (vertWalls[x][y - 1] == false || vertWalls[x][y + 1] == false)) {
+                        vertWalls[x][y] = true;
+                        p2RemainingWalls--;
+                        return true;
+                    }
+                    // Checks for overlapping walls
+                    else if ((vertWalls[x][y - 1] == true || vertWalls[x][y + 1] == true) && (horzWalls[x - 1][y] == false || horzWalls[x + 1][y] == false)) {
+                        horzWalls[x][y] = true;
+                        p2RemainingWalls--;
+                        return true;
+                    }
+                    // Default Case
+                    else if ((horzWalls[x - 1][y] == false && horzWalls[x + 1][y] == false) && (vertWalls[x][y - 1] == false && vertWalls[x][y + 1] == false)) {
+                        horzWalls[x][y] = true;
+                        p2RemainingWalls--;
+                        return true;
+                    } else
+                        return false;
+                } else
+                    return false;
+            } else
+                return false;
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     //TODO: rotateWall method
     //TODO: how are we going to identify newly placed walls? does the framework handle this?
-    public boolean rotateWall(int player, int x, int y)
-    {
-        //check bounds
-        //check if wall exists (vert/horz)
-        //check if rotated wall is valid
-            //flip bool in both matrices
-
-        return false;
+    public boolean rotateWall(int player, int x, int y) {
+        try {
+            if (player == 1) // player 1
+            {
+                if (horzWalls[x][y] == true) {
+                    if (vertWalls[x][y - 1] == true || vertWalls[x][y + 1] == true) {
+                        return false;
+                    } else {
+                        vertWalls[x][y] = true;
+                        horzWalls[x][y] = false;
+                        return true;
+                    }
+                } else if (vertWalls[x][y] == true) {
+                    if (horzWalls[x - 1][y] == true || horzWalls[x + 1][y] == true) {
+                        return false;
+                    } else {
+                        horzWalls[x][y] = true;
+                        vertWalls[x][y] = false;
+                        return true;
+                    }
+                } else
+                    return false;
+            } else if (player == 2) {
+                if (horzWalls[x][y] == true) {
+                    if (vertWalls[x][y - 1] == true || vertWalls[x][y + 1] == true) {
+                        return false;
+                    } else {
+                        vertWalls[x][y] = true;
+                        horzWalls[x][y] = false;
+                        return true;
+                    }
+                } else if (vertWalls[x][y] == true) {
+                    if (horzWalls[x - 1][y] == true || horzWalls[x + 1][y] == true) {
+                        return false;
+                    } else {
+                        horzWalls[x][y] = true;
+                        vertWalls[x][y] = false;
+                        return true;
+                    }
+                } else
+                    return false;
+            } else
+                return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
-
 
 }
