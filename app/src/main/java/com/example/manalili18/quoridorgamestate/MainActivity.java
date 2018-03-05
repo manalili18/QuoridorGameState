@@ -6,6 +6,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+/**
+ * Created by manalili18 on 2/21/2018.
+ * @author Noah Davis
+ * @author Anthony Lieu
+ * @author Phillip Manalili
+ * @author Dylan Shuler
+ */
+
 public class MainActivity extends AppCompatActivity{
 
     Button runTest;

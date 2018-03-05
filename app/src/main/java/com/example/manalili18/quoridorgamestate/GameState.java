@@ -10,6 +10,10 @@ import java.io.IOException;
 
 /**
  * Created by manalili18 on 2/21/2018.
+ * @author Noah Davis
+ * @author Anthony Lieu
+ * @author Phillip Manalili
+ * @author Dylan Shuler
  */
 
 public class GameState {
@@ -499,18 +503,19 @@ public class GameState {
         return true;
     }
 
-    //TODO: placeWall method
-    //placeWall
-    //Checks for which player is placing the wall
-    //Returns false if player does not have any available walls
-    //Checks if placeWall is a valid move
-    //TODO: Figure out how to deal with finalize turn and closed path
+    /*placeWall
+     *Checks for player turn
+     *Calls borderPlaceCheck method to check border and placeable spots
+     *Returns false if method call returns false
+    */
+    //TODO: Figure out how to deal with closed path
     public boolean placeWall(int player, int x, int y) {
         //checks for player turn, returns false if not turn
         if (player != turn)
             return false;
-        //check bounds
+        //check bounds by calling method
         if (borderPlaceCheck(player, x, y)) {
+            //set temp wall variable to respective player's remaining walls
             if (player == 0)
                 p1RemainingWalls = tempRemWalls;
             else
@@ -520,16 +525,21 @@ public class GameState {
             return false;
     }
 
-
+    /* borderPlaceCheck
+     * Method does border error checking
+     * Checks to make sure given wall can be placed in x, y spot clicked by player
+     */
     private boolean borderPlaceCheck(int player, int x, int y) {
         if (turn == 0) // player 1
             tempRemWalls = p1RemainingWalls;
         else
             tempRemWalls = p2RemainingWalls;
-        if (tempRemWalls == 0)
+        if (tempRemWalls == 0) //if player has no walls, returns
             return false;
         if (!tempHWalls[x][y] && !tempVWalls[x][y]) // default to horzWall place first
         {
+            //checks if x,y coordinate clicked is 0,0
+            //checks respective wall locations based on placement
             if (x == 0 && y == 0) {
                 if (tempHWalls[x + 1][y] && !tempVWalls[x][y + 1]) {
                     tempVWalls[x][y] = true;
@@ -540,14 +550,17 @@ public class GameState {
                     tempRemWalls--;
                     return true;
                 }
-                // Default Case
+                // Default Case - no walls surrounding so defaults to horizontal wall
                 else if (!tempHWalls[x + 1][y] && !tempVWalls[x][y + 1]) {
                     tempHWalls[x][y] = true;
                     tempRemWalls--;
                     return true;
                 } else
                     return false;
-            } else if (x == 0 && y == 8) {
+            }
+            //checks if x,y coordinate clicked is 0,8
+            //checks respective wall locations based on placement
+            else if (x == 0 && y == 8) {
                 if ((tempHWalls[x + 1][y]) && (!tempVWalls[x][y - 1])) {
                     tempVWalls[x][y] = true;
                     tempRemWalls--;
@@ -557,14 +570,16 @@ public class GameState {
                     tempRemWalls--;
                     return true;
                 }
-                // Default Case
+                // Default Case - no walls surrounding so defaults to horizontal wall
                 else if (!tempHWalls[x + 1][y] && !tempVWalls[x][y - 1]) {
                     tempHWalls[x][y] = true;
                     tempRemWalls--;
                     return true;
                 } else
                     return false;
-            } else if (x == 8 && y == 0) {
+            }
+            //checks if x,y coordinate clicked is 8,0
+            else if (x == 8 && y == 0) {
                 if (tempHWalls[x - 1][y] && !tempVWalls[x][y + 1]) {
                     tempVWalls[x][y] = true;
                     tempRemWalls--;
@@ -581,7 +596,9 @@ public class GameState {
                     return true;
                 } else
                     return false;
-            } else if (x == 8 && y == 8) {
+            }
+            //checks if x,y coordinate clicked is 8,8
+            else if (x == 8 && y == 8) {
                 if (tempHWalls[x - 1][y] && !tempVWalls[x][y - 1]) {
                     tempVWalls[x][y] = true;
                     tempRemWalls--;
@@ -598,7 +615,9 @@ public class GameState {
                     return true;
                 } else
                     return false;
-            } else if (x == 0) {
+            }
+            //checks if x coordinate clicked is 0, can't check for x-1 spot or OOB error would be thrown
+            else if (x == 0) {
                 if (tempHWalls[x + 1][y] && (!tempVWalls[x][y - 1] || !tempVWalls[x][y + 1])) {
                     tempVWalls[x][y] = true;
                     tempRemWalls--;
@@ -615,7 +634,9 @@ public class GameState {
                     return true;
                 } else
                     return false;
-            } else if (x == 8) {
+            }
+            //checks if x coordinate clicked is 8, can't check for x+1 spot or OOB error would be thrown
+            else if (x == 8) {
                 if (tempHWalls[x - 1][y] && (!tempVWalls[x][y - 1] || !tempVWalls[x][y + 1])) {
                     tempVWalls[x][y] = true;
                     tempRemWalls--;
@@ -632,7 +653,9 @@ public class GameState {
                     return true;
                 } else
                     return false;
-            } else if (y == 0) {
+            }
+            //checks if y coordinate clicked is 0, can't check for y-1 spot or OOB error would be thrown
+            else if (y == 0) {
                 if ((tempHWalls[x - 1][y] || tempHWalls[x + 1][y]) && !tempVWalls[x][y + 1]) {
                     tempVWalls[x][y] = true;
                     tempRemWalls--;
@@ -649,7 +672,9 @@ public class GameState {
                     return true;
                 } else
                     return false;
-            } else if (y == 8) {
+            }
+            //checks if y coordinate clicked is 0, can't check for y+1 spot or OOB error would be thrown
+            else if (y == 8) {
                 if (((tempHWalls[x - 1][y]) || (tempHWalls[x + 1][y])) && (!tempVWalls[x][y - 1])) {
                     tempVWalls[x][y] = true;
                     tempRemWalls--;
@@ -666,7 +691,9 @@ public class GameState {
                     return true;
                 } else
                     return false;
-            } else {
+            }
+            //Default Case - x or y are not on the borders so have to check all 4 spots to make sure wall can be placed
+            else {
                 //check if spot is available (horz and vert)
                 if ((tempHWalls[x - 1][y] || tempHWalls[x + 1][y]) && (!tempVWalls[x][y - 1] || !tempVWalls[x][y + 1])) {
                     tempVWalls[x][y] = true;
@@ -677,7 +704,7 @@ public class GameState {
                     tempRemWalls--;
                     return true;
                 }
-                // Default Case
+                // Default Case - Horizontal wall is placed
                 else if ((!tempHWalls[x - 1][y] && !tempHWalls[x + 1][y]) && (!tempVWalls[x][y - 1] && !tempVWalls[x][y + 1])) {
                     tempHWalls[x][y] = true;
                     tempRemWalls--;
@@ -689,7 +716,10 @@ public class GameState {
             return false;
     }
 
-    //TODO: rotateWall method
+    /* rotateWall
+     * Checks for player turn
+     * Calls borderRotateCheck method to see if rotate is valid
+     */
     //TODO: how are we going to identify newly placed walls? does the framework handle this?
     public boolean rotateWall(int player, int x, int y) {
         //checks for player turn, returns false if not turn
@@ -698,12 +728,19 @@ public class GameState {
         return borderRotateCheck(x, y);
     }
 
+    /* borderRotateCheck
+     * Method does border error checking
+     * Makes sure wall trying to be rotated is a valid move
+     */
     private boolean borderRotateCheck(int x, int y) {
+        //checks if x,y coordinate clicked is 0,0
         if (x == 0 && y == 0) {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y + 1]) {
                     return false;
-                } else {
+                }
+                //Default Case - move is valid, switch hor wall to vert wall
+                else {
                     tempVWalls[x][y] = true;
                     tempHWalls[x][y] = false;
                     return true;
@@ -711,14 +748,18 @@ public class GameState {
             } else if (tempVWalls[x][y]) {
                 if (tempHWalls[x + 1][y]) {
                     return false;
-                } else {
+                }
+                //Default Case - move is valid, switch vert wall to hor wall
+                else {
                     tempHWalls[x][y] = true;
                     tempVWalls[x][y] = false;
                     return true;
                 }
             } else
                 return false;
-        } else if (x == 0 && y == 8) {
+        }
+        //checks if x,y coordinate clicked is 0,8
+        else if (x == 0 && y == 8) {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y - 1]) {
                     return false;
@@ -737,7 +778,9 @@ public class GameState {
                 }
             } else
                 return false;
-        } else if (x == 8 && y == 0) {
+        }
+        //checks if x,y coordinate clicked is 8,0
+        else if (x == 8 && y == 0) {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y + 1]) {
                     return false;
@@ -756,7 +799,9 @@ public class GameState {
                 }
             } else
                 return false;
-        } else if (x == 8 && y == 8) {
+        }
+        //checks if x,y coordinate clicked is 8,8
+        else if (x == 8 && y == 8) {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y - 1]) {
                     return false;
@@ -775,7 +820,9 @@ public class GameState {
                 }
             } else
                 return false;
-        } else if (x == 0) {
+        }
+        //checks if x coordinate clicked is 0
+        else if (x == 0) {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) {
                     return false;
@@ -794,7 +841,9 @@ public class GameState {
                 }
             } else
                 return false;
-        } else if (x == 8) {
+        }
+        //checks if x coordinate clicked is 8
+        else if (x == 8) {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) {
                     return false;
@@ -813,7 +862,9 @@ public class GameState {
                 }
             } else
                 return false;
-        } else if (y == 0) {
+        }
+        //checks if y coordinate clicked is 0
+        else if (y == 0) {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y + 1]) {
                     return false;
@@ -832,7 +883,9 @@ public class GameState {
                 }
             } else
                 return false;
-        } else if (y == 8) {
+        }
+        //checks if y coordinate clicked is 8
+        else if (y == 8) {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y - 1]) {
                     return false;
@@ -851,7 +904,11 @@ public class GameState {
                 }
             } else
                 return false;
-        } else {
+        }
+        //Default Case - x or y are not on the borders
+        //Have to check for both spots depending on orientation of original wall
+        //to make sure wall rotation is valid
+        else {
             if (tempHWalls[x][y]) {
                 if (tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) {
                     return false;
@@ -872,9 +929,5 @@ public class GameState {
                 return false;
         }
     }
-
-
-
-
 
 }
