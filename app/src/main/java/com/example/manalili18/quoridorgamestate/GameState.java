@@ -420,115 +420,375 @@ public class GameState {
     //Checks if placeWall is a valid move
     //TODO: Figure out how to deal with finalize turn and closed path
     public boolean placeWall(int player, int x, int y) {
-        try {
-            //check bounds
-            if (player == 1) // player 1
-            {
-                if (p1RemainingWalls == 0)
-                    return false;
-                    //check if spot is available (horz and vert)
-                else if (horzWalls[x][y] == false && vertWalls[x][y] == false) // default to horzWall place first
-                {
-                    if ((horzWalls[x - 1][y] == true || horzWalls[x + 1][y] == true) && (vertWalls[x][y - 1] == false || vertWalls[x][y + 1] == false)) {
-                        vertWalls[x][y] = true;
-                        p1RemainingWalls--;
-                        return true;
-                    } else if ((vertWalls[x][y - 1] == true || vertWalls[x][y + 1] == true) && (horzWalls[x - 1][y] == false || horzWalls[x + 1][y] == false)) {
-                        horzWalls[x][y] = true;
-                        p1RemainingWalls--;
-                        return true;
-                    }
-                    // Default Case
-                    else if ((horzWalls[x - 1][y] == false && horzWalls[x + 1][y] == false) && (vertWalls[x][y - 1] == false && vertWalls[x][y + 1] == false)) {
-                        horzWalls[x][y] = true;
-                        p1RemainingWalls--;
-                        return true;
-                    } else
-                        return false;
-                } else
-                    return false;
-            } else if (player == 2) // player 2
-            {
-                if (p2RemainingWalls == 0)
-                    return false;
-                else if (horzWalls[x][y] == false && vertWalls[x][y] == false) // default to horzWall place first
-                {
-                    // Checks for overlapping walls
-                    if ((horzWalls[x - 1][y] == true || horzWalls[x + 1][y] == true) && (vertWalls[x][y - 1] == false || vertWalls[x][y + 1] == false)) {
-                        vertWalls[x][y] = true;
-                        p2RemainingWalls--;
-                        return true;
-                    }
-                    // Checks for overlapping walls
-                    else if ((vertWalls[x][y - 1] == true || vertWalls[x][y + 1] == true) && (horzWalls[x - 1][y] == false || horzWalls[x + 1][y] == false)) {
-                        horzWalls[x][y] = true;
-                        p2RemainingWalls--;
-                        return true;
-                    }
-                    // Default Case
-                    else if ((horzWalls[x - 1][y] == false && horzWalls[x + 1][y] == false) && (vertWalls[x][y - 1] == false && vertWalls[x][y + 1] == false)) {
-                        horzWalls[x][y] = true;
-                        p2RemainingWalls--;
-                        return true;
-                    } else
-                        return false;
-                } else
-                    return false;
-            } else
-                return false;
-        } catch (Exception e) {
+        //checks for player turn, returns false if not turn
+        if (player != turn)
             return false;
-        }
+        //check bounds
+        if (borderPlaceCheck(player, x, y)) {
+            if (player == 0)
+                p1RemainingWalls = tempRemWalls;
+            else
+                p2RemainingWalls = tempRemWalls;
+            return true;
+        } else
+            return false;
+    }
+
+
+    private boolean borderPlaceCheck(int player, int x, int y) {
+        if (turn == 0) // player 1
+            tempRemWalls = p1RemainingWalls;
+        else
+            tempRemWalls = p2RemainingWalls;
+        if (tempRemWalls == 0)
+            return false;
+        if (!tempHWalls[x][y] && !tempVWalls[x][y]) // default to horzWall place first
+        {
+            if (x == 0 && y == 0) {
+                if (tempHWalls[x + 1][y] && !tempVWalls[x][y + 1]) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if (tempVWalls[x][y + 1] && !tempHWalls[x + 1][y]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if (!tempHWalls[x + 1][y] && !tempVWalls[x][y + 1]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            } else if (x == 0 && y == 8) {
+                if ((tempHWalls[x + 1][y]) && (!tempVWalls[x][y - 1])) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if (tempVWalls[x][y - 1] && !tempHWalls[x + 1][y]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if (!tempHWalls[x + 1][y] && !tempVWalls[x][y - 1]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            } else if (x == 8 && y == 0) {
+                if (tempHWalls[x - 1][y] && !tempVWalls[x][y + 1]) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if (tempVWalls[x][y + 1] && !tempHWalls[x - 1][y]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if (!tempHWalls[x - 1][y] && !tempVWalls[x][y + 1]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            } else if (x == 8 && y == 8) {
+                if (tempHWalls[x - 1][y] && !tempVWalls[x][y - 1]) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if (tempVWalls[x][y - 1] && !tempHWalls[x - 1][y]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if (!tempHWalls[x - 1][y] && !tempVWalls[x][y - 1]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            } else if (x == 0) {
+                if (tempHWalls[x + 1][y] && (!tempVWalls[x][y - 1] || !tempVWalls[x][y + 1])) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if ((tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) && !tempHWalls[x + 1][y]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if (!tempHWalls[x + 1][y] && (!tempVWalls[x][y - 1] && !tempVWalls[x][y + 1])) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            } else if (x == 8) {
+                if (tempHWalls[x - 1][y] && (!tempVWalls[x][y - 1] || !tempVWalls[x][y + 1])) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if ((tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) && !tempHWalls[x - 1][y]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if (!tempHWalls[x - 1][y] && (!tempVWalls[x][y - 1] && !tempVWalls[x][y + 1])) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            } else if (y == 0) {
+                if ((tempHWalls[x - 1][y] || tempHWalls[x + 1][y]) && !tempVWalls[x][y + 1]) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if (tempVWalls[x][y + 1] && (!tempHWalls[x - 1][y] || !tempHWalls[x + 1][y])) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if ((!tempHWalls[x - 1][y] && !tempHWalls[x + 1][y]) && !tempVWalls[x][y + 1]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            } else if (y == 8) {
+                if (((tempHWalls[x - 1][y]) || (tempHWalls[x + 1][y])) && (!tempVWalls[x][y - 1])) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if (tempVWalls[x][y - 1] && ((!tempHWalls[x - 1][y]) || (!tempHWalls[x + 1][y]))) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if ((!tempHWalls[x - 1][y] && !tempHWalls[x + 1][y]) && !tempVWalls[x][y - 1]) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            } else {
+                //check if spot is available (horz and vert)
+                if ((tempHWalls[x - 1][y] || tempHWalls[x + 1][y]) && (!tempVWalls[x][y - 1] || !tempVWalls[x][y + 1])) {
+                    tempVWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else if ((tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) && (!tempHWalls[x - 1][y] || !tempHWalls[x + 1][y])) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                }
+                // Default Case
+                else if ((!tempHWalls[x - 1][y] && !tempHWalls[x + 1][y]) && (!tempVWalls[x][y - 1] && !tempVWalls[x][y + 1])) {
+                    tempHWalls[x][y] = true;
+                    tempRemWalls--;
+                    return true;
+                } else
+                    return false;
+            }
+        } else
+            return false;
     }
 
     //TODO: rotateWall method
     //TODO: how are we going to identify newly placed walls? does the framework handle this?
     public boolean rotateWall(int player, int x, int y) {
-        try {
-            if (player == 1) // player 1
-            {
-                if (horzWalls[x][y] == true) {
-                    if (vertWalls[x][y - 1] == true || vertWalls[x][y + 1] == true) {
-                        return false;
-                    } else {
-                        vertWalls[x][y] = true;
-                        horzWalls[x][y] = false;
-                        return true;
-                    }
-                } else if (vertWalls[x][y] == true) {
-                    if (horzWalls[x - 1][y] == true || horzWalls[x + 1][y] == true) {
-                        return false;
-                    } else {
-                        horzWalls[x][y] = true;
-                        vertWalls[x][y] = false;
-                        return true;
-                    }
-                } else
+        //checks for player turn, returns false if not turn
+        if (player != turn)
+            return false;
+        return borderRotateCheck(x, y);
+    }
+
+    private boolean borderRotateCheck(int x, int y) {
+        if (x == 0 && y == 0) {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y + 1]) {
                     return false;
-            } else if (player == 2) {
-                if (horzWalls[x][y] == true) {
-                    if (vertWalls[x][y - 1] == true || vertWalls[x][y + 1] == true) {
-                        return false;
-                    } else {
-                        vertWalls[x][y] = true;
-                        horzWalls[x][y] = false;
-                        return true;
-                    }
-                } else if (vertWalls[x][y] == true) {
-                    if (horzWalls[x - 1][y] == true || horzWalls[x + 1][y] == true) {
-                        return false;
-                    } else {
-                        horzWalls[x][y] = true;
-                        vertWalls[x][y] = false;
-                        return true;
-                    }
-                } else
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x + 1][y]) {
                     return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
             } else
                 return false;
-        } catch (Exception e) {
-            return false;
+        } else if (x == 0 && y == 8) {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y - 1]) {
+                    return false;
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x + 1][y]) {
+                    return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
+            } else
+                return false;
+        } else if (x == 8 && y == 0) {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y + 1]) {
+                    return false;
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x - 1][y]) {
+                    return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
+            } else
+                return false;
+        } else if (x == 8 && y == 8) {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y - 1]) {
+                    return false;
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x - 1][y]) {
+                    return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
+            } else
+                return false;
+        } else if (x == 0) {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) {
+                    return false;
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x + 1][y]) {
+                    return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
+            } else
+                return false;
+        } else if (x == 8) {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) {
+                    return false;
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x - 1][y]) {
+                    return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
+            } else
+                return false;
+        } else if (y == 0) {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y + 1]) {
+                    return false;
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x - 1][y] || tempHWalls[x + 1][y]) {
+                    return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
+            } else
+                return false;
+        } else if (y == 8) {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y - 1]) {
+                    return false;
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x - 1][y] || tempHWalls[x + 1][y]) {
+                    return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
+            } else
+                return false;
+        } else {
+            if (tempHWalls[x][y]) {
+                if (tempVWalls[x][y - 1] || tempVWalls[x][y + 1]) {
+                    return false;
+                } else {
+                    tempVWalls[x][y] = true;
+                    tempHWalls[x][y] = false;
+                    return true;
+                }
+            } else if (tempVWalls[x][y]) {
+                if (tempHWalls[x - 1][y] || tempHWalls[x + 1][y]) {
+                    return false;
+                } else {
+                    tempHWalls[x][y] = true;
+                    tempVWalls[x][y] = false;
+                    return true;
+                }
+            } else
+                return false;
         }
     }
+
+
+
+
 
 }
