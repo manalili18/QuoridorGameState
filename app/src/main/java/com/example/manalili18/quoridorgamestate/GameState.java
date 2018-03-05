@@ -102,6 +102,7 @@ public class GameState {
         result += "horzWalls\n";
 
         result += wallMatrixToString(horzWalls);
+        result += "Vert Walls\n";
         result += wallMatrixToString(vertWalls);
 
         result += "p1RemainingWalls%%" + p1RemainingWalls + "\n";
@@ -150,7 +151,7 @@ public class GameState {
         //moving player is in first slot of bothPlayers[]
         int[][] bothPlayers = new int[][]{p1Pos, p2Pos};
         //check bounds
-        if (player != 0 || player != 1) {
+        if (player < 0 || player > 1) {
             return false;
         }
         //make sure the player can move
@@ -162,9 +163,11 @@ public class GameState {
         switch (dir) {
             case UP:
                 moveUp(bothPlayers[player], bothPlayers[1 - player], jump);
+                Log.i("movePawn", "moved player up");
                 break;
             case DOWN:
                 moveDown(bothPlayers[player], bothPlayers[1 - player], jump);
+                Log.i("movePawn", "moved down");
                 break;
             case RIGHT:
                 moveRight(bothPlayers[player], bothPlayers[1 - player], jump);
@@ -357,7 +360,8 @@ public class GameState {
             else if (vertWalls[curX - 1][curY] || horzWalls[curX - 1][curY - 1]) {
                 return false;
             } else {
-                currentPlayer[0]--; //move player left one space
+                tempPos[0] = currentPlayer[0]-1; //move player left one space
+                tempPos[1] = currentPlayer[1];
                 return true;
             }
         } catch (ArrayIndexOutOfBoundsException ai) {
@@ -420,7 +424,8 @@ public class GameState {
             else if (vertWalls[curX][curY - 1] || horzWalls[curX][curY]) {
                 return false;
             } else {
-                currentPlayer[0]++; //move player left one space
+                tempPos[0] = currentPlayer[0]+1; //move player left one space
+                tempPos[1] = currentPlayer[1];
                 return true;
             }
         } catch (ArrayIndexOutOfBoundsException ai) {
@@ -455,7 +460,16 @@ public class GameState {
         }
 
         turn = 1 - turn;
-
+        //set tempPos to prevent accidentally setting position on wall placement
+        if(turn == 0){
+            tempPos[0] = p1Pos[0];
+            tempPos[1] = p1Pos[1] ;
+            tempRemWalls = p1RemainingWalls;
+        } else {
+            tempPos[0] = p2Pos[0];
+            tempPos[1] = p2Pos[1] ;
+            tempRemWalls = p2RemainingWalls;
+        }
         return true;
     }
 
