@@ -46,6 +46,34 @@ public class MainActivity extends AppCompatActivity{
                 et.setText(et.getText() + "player 2 moves left 1 space\n");
                 firstInstance.finalizeTurn();
 
+                firstInstance.placeWall(0,3,4);
+                et.setText(et.getText() + "player 1 places wall at intersection (3,4)\n");
+                firstInstance.rotateWall(0,3,4);
+                et.setText(et.getText() + "player 1 rotates wall at intersection (3,4)\n");
+                firstInstance.rotateWall(0,3,4);
+                et.setText(et.getText() + "player 1 rotates wall at intersection (3,4)\n");
+                firstInstance.finalizeTurn();
+
+                firstInstance.placeWall(1,4,3);
+                et.setText(et.getText() + "player 2 places wall at intersection (4,3)\n");
+                firstInstance.finalizeTurn();
+
+                firstInstance.placeWall(0,5,4);
+                et.setText(et.getText() + "player 1 places wall at intersection (5,4)\n");
+                firstInstance.finalizeTurn();
+
+                firstInstance.placeWall(1,4,5);
+                et.setText(et.getText() + "player 2 places wall at intersection (4,5)\n");
+                firstInstance.finalizeTurn();
+
+                firstInstance.placeWall(0,4,4);
+                et.setText(et.getText() + "player 1 invalid wall placement at (4,4)\n");
+                firstInstance.placeWall(0,6,4);
+                et.setText(et.getText() + "player 1 places wall at intersection (6,4)\n");
+                firstInstance.rotateWall(0,6,4);
+                et.setText(et.getText() + "player 1 invalid wall rotation at (6,4)\n");
+                firstInstance.finalizeTurn();
+
                 GameState thirdInstance = new GameState();
                 GameState fourthInstance = new GameState(thirdInstance);
 
