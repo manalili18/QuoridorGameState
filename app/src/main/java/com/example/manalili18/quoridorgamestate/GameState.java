@@ -24,7 +24,7 @@ public class GameState {
     private boolean[][] vertWalls, tempVWalls;
 
     private int p1RemainingWalls,tempRemWalls, p2RemainingWalls;
-    private GameState finalState;
+
 
     public enum Direction {
         UP,
@@ -34,24 +34,26 @@ public class GameState {
     }
 
     public GameState() {
-        turn = 1;
-
+        turn = 0;
         p1Pos = new int[]{4, 0};
         p2Pos = new int[]{4, 8};
-
+        tempPos = new int[]{0,0};
+        tempPos[0] = p1Pos [0];
+        tempPos[1] = p1Pos [1];
         horzWalls = new boolean[8][8];
         vertWalls = new boolean[8][8];
+        tempVWalls = new boolean[8][8];
+        tempHWalls = new boolean[8][8];
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                horzWalls[i][j] = vertWalls[i][j] = false;
+                tempVWalls[i][j] = tempHWalls[i][j] = horzWalls[i][j] = vertWalls[i][j] = false;
             }
         }
 
-        p1RemainingWalls = 10;
-        p2RemainingWalls = 10;
+        tempRemWalls = p1RemainingWalls = p2RemainingWalls = 10;
 
-        finalState = new GameState(this);
+
     }
 
     //copy ctor
@@ -61,18 +63,26 @@ public class GameState {
         this.p1Pos = new int[]{g.p1Pos[0], g.p1Pos[1]};
         this.p2Pos = new int[]{g.p2Pos[0], g.p2Pos[1]};
 
+        this.tempPos = new int[]{0,0};
+        this.tempPos[0] = (this.turn == 0) ? p1Pos[0] : p2Pos[0];
+        this.tempPos[1] = (this.turn == 1) ? p1Pos[1] : p2Pos[1];
+
         this.horzWalls = new boolean[8][8];
         this.vertWalls = new boolean[8][8];
+        this.tempVWalls = new boolean[8][8];
+        this.tempHWalls = new boolean[8][8];
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                this.horzWalls[i][j] = g.horzWalls[i][j];
-                this.vertWalls[i][j] = g.vertWalls[i][j];
+                this.tempHWalls[i][j] = this.horzWalls[i][j] = g.horzWalls[i][j];
+                this.tempVWalls[i][j] = this.vertWalls[i][j] = g.vertWalls[i][j];
             }
         }
 
         this.p1RemainingWalls = g.p1RemainingWalls;
         this.p2RemainingWalls = g.p2RemainingWalls;
+
+        this.tempRemWalls = (this.turn == 1) ? p1RemainingWalls : p2RemainingWalls;
     }
 
     // prints all instance variables
@@ -100,13 +110,14 @@ public class GameState {
         return result;
     }
 
-
     /**
+     * toString helper method for 2d boolean matrices.
      * print each boolean in horzWalls
      * elements delimited by %%
      * rows delimited by newlines
-     * <p>
-     * TODO: should this be static?
+     *
+     * @param wallMatrix
+     * @return String representation of input matrix
      */
     private String wallMatrixToString(boolean[][] wallMatrix) {
 
@@ -126,10 +137,17 @@ public class GameState {
         return result;
     }
 
-    //TODO: movePawn method
+    /**
+     * Move pawn according to direction. If necessary, referrences jump for various jump
+     * cases.
+     *
+     * @param player who's turn it is
+     * @param dir direction of movement
+     * @param jump boolean that determines extra diagonal jumps
+     * @return true if success, else false
+     */
     public boolean movePawn(int player, Direction dir, boolean jump) {
         //moving player is in first slot of bothPlayers[]
-        //int[][] bothPlayers = (player == 0) ? new int[][]{p1Pos,p2Pos} : new int[][]{p2Pos,p1Pos};
         int[][] bothPlayers = new int[][]{p1Pos, p2Pos};
         //check bounds
         if (player != 0 || player != 1) {
@@ -148,7 +166,6 @@ public class GameState {
             case DOWN:
                 moveDown(bothPlayers[player], bothPlayers[1 - player], jump);
                 break;
-
             case RIGHT:
                 moveRight(bothPlayers[player], bothPlayers[1 - player], jump);
                 break;
@@ -188,8 +205,8 @@ public class GameState {
                         if (vertWalls[curX - 1][curY - 1] || vertWalls[curX - 1][curY - 2]) {
                             return false;
                         } else {
-                            currentPlayer[0]--;
-                            currentPlayer[1]--;
+                            tempPos[0] = currentPlayer[0]-1;
+                            tempPos[1] = currentPlayer[1]-1;
                             return true;
                         }
                     } else {
@@ -197,22 +214,24 @@ public class GameState {
                         if (vertWalls[curX][curY - 1] || vertWalls[curX][curY - 2]) {
                             return false;
                         } else {
-                            currentPlayer[0]++;
-                            currentPlayer[1]--;
+                            tempPos[0] = currentPlayer[0]+1;
+                            tempPos[1] = currentPlayer[1]-1;
                             return true;
                         }
                     } //elif for jump case
 
                 } //if for far walls
                 else {
-                    currentPlayer[1] -= 2; //jump over the adjacent player
+                    tempPos[0] = currentPlayer[0];
+                    tempPos[1] = currentPlayer[1] - 2; //jump over the adjacent player
                 }
             }//if for player adjacency
             //check if there are walls in front
             else if (horzWalls[curX - 1][curY - 1] || horzWalls[curX][curY - 1]) {
                 return false;
             } else {
-                currentPlayer[1]--; //move player up one space
+                tempPos[0] = curX;
+                tempPos[1] = currentPlayer[1]-1; //move player up one space
                 return true;
             }
         } catch (ArrayIndexOutOfBoundsException ai) {
@@ -250,8 +269,8 @@ public class GameState {
                         if (vertWalls[curX - 1][curY] || vertWalls[curX - 1][curY + 1]) {
                             return false;
                         } else {
-                            currentPlayer[0]--;
-                            currentPlayer[1]++;
+                            tempPos[0] = currentPlayer[0]-1;
+                            tempPos[1] = currentPlayer[1]+1;
                             return true;
                         }
                     } else {
@@ -259,8 +278,8 @@ public class GameState {
                         if (vertWalls[curX][curY] || vertWalls[curX][curY + 1]) {
                             return false;
                         } else {
-                            currentPlayer[0]++;
-                            currentPlayer[1]++;
+                            tempPos[0] = currentPlayer[0]+1;
+                            tempPos[1] = currentPlayer[1]+1;
                             return true;
                         }
                     } //elif for jump case
@@ -274,7 +293,8 @@ public class GameState {
             else if (horzWalls[curX - 1][curY] || horzWalls[curX][curY]) {
                 return false;
             } else {
-                currentPlayer[1]++; //move player up one space
+                tempPos[0] = currentPlayer[0];
+                tempPos[1] = currentPlayer[1]+1; //move player up one space
                 return true;
             }
         } catch (ArrayIndexOutOfBoundsException ai) {
@@ -312,8 +332,8 @@ public class GameState {
                         if (horzWalls[curX - 2][curY - 1] || horzWalls[curX - 1][curY - 1]) {
                             return false;
                         } else {
-                            currentPlayer[0]--;
-                            currentPlayer[1]--;
+                            tempPos[0] = currentPlayer[0]-1;
+                            tempPos[1] = currentPlayer[1]-1;
                             return true;
                         }
                     } else {
@@ -321,15 +341,16 @@ public class GameState {
                         if (horzWalls[curX - 2][curY] || horzWalls[curX - 1][curY]) {
                             return false;
                         } else {
-                            currentPlayer[0]--;
-                            currentPlayer[1]++;
+                            tempPos[0] = currentPlayer[0]-1;
+                            tempPos[0] = currentPlayer[1]+1;
                             return true;
                         }
                     } //elif for jump case
 
                 } //if for far walls
                 else {
-                    currentPlayer[0] -= 2; //jump left over the adjacent player
+                    tempPos[0] = currentPlayer[0] - 2; //jump left over the adjacent player
+                    tempPos[1] = currentPlayer[1];
                 }
             }//if for player adjacency
             //check if there are walls on left side
@@ -374,8 +395,8 @@ public class GameState {
                         if (horzWalls[curX][curY - 1] || horzWalls[curX + 1][curY - 1]) {
                             return false;
                         } else {
-                            currentPlayer[0]++;
-                            currentPlayer[1]--;
+                            tempPos[0] = currentPlayer[0]+1;
+                            tempPos[1] = currentPlayer[1]-1;
                             return true;
                         }
                     } else {
@@ -383,15 +404,16 @@ public class GameState {
                         if (horzWalls[curX][curY] || horzWalls[curX + 1][curY]) {
                             return false;
                         } else {
-                            currentPlayer[0]++;
-                            currentPlayer[1]++;
+                            tempPos[0] = currentPlayer[0]+1;
+                            tempPos[1] = currentPlayer[1]+1;
                             return true;
                         }
                     } //elif for jump case
 
                 } //if for far walls
                 else {
-                    currentPlayer[0] += 2; //jump left over the adjacent player
+                    tempPos[0] = currentPlayer[0] + 2; //jump left over the adjacent player
+                    tempPos[1] = currentPlayer[1];
                 }
             }//if for player adjacency
             //check if there are walls on right side
@@ -408,8 +430,58 @@ public class GameState {
         return false;
     }
 
+    /**
+     * Finalize temp values to reflect actual board changes.
+     * @return true. Always.
+     */
     public boolean finalizeTurn() {
+        //check who's turn it is and update their values
+        if(turn == 0){
+            p1Pos[0] = tempPos[0];
+            p1Pos[1] = tempPos[1];
+            p1RemainingWalls = tempRemWalls;
+        } else {
+            p2Pos[0] = tempPos[0];
+            p2Pos[1] = tempPos[1];
+            p2RemainingWalls = tempRemWalls;
+        }
+
+        //update walls on board
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                horzWalls[i][j] = tempHWalls[i][j];
+                vertWalls[i][j] = tempVWalls[i][j];
+            }
+        }
+
         turn = 1 - turn;
+
+        return true;
+    }
+
+    /**
+     * Resets the board to the beginning of the turn.
+     * @return true?
+     */
+    public boolean undo(){
+        //check who's turn it is and reset their values
+        if(turn == 0){
+            tempPos[0] = p1Pos[0];
+            tempPos[1] = p1Pos[1] ;
+            tempRemWalls = p1RemainingWalls;
+        } else {
+            tempPos[0] = p2Pos[0];
+            tempPos[1] = p2Pos[1] ;
+            tempRemWalls = p2RemainingWalls;
+        }
+
+        //update walls on board
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                tempHWalls[i][j] = horzWalls[i][j];
+                tempVWalls[i][j] = vertWalls[i][j];
+            }
+        }
         return true;
     }
 

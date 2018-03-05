@@ -26,13 +26,17 @@ public class MainActivity extends AppCompatActivity{
                 GameState secondInstance = new GameState(firstInstance); //use copy constructor
 
                 firstInstance.movePawn(0, GameState.Direction.UP,false);
-                firstInstance.finalizeTurn();
                 et.setText(et.getText() + "player 1 moves up 1 space\n");
+                firstInstance.finalizeTurn();
+                et.setText(et.getText() + "player 1 finalized their turn\n");
+
 
                 firstInstance.movePawn(1, GameState.Direction.DOWN,false);
-                firstInstance.finalizeTurn();
                 et.setText(et.getText() + "player 2 moves down 1 space\n");
-
+                firstInstance.undo();
+                et.setText(et.getText() + "player 2 undid that move\n");
+                firstInstance.movePawn(1, GameState.Direction.DOWN,false);
+                et.setText(et.getText() + "player 2 moves down 1 space again\n");
 
                 firstInstance.movePawn(0, GameState.Direction.RIGHT,false);
                 et.setText(et.getText() + "player 1 moves right 1 space\n");
