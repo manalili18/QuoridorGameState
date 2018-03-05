@@ -6,15 +6,18 @@
     android:orientation="vertical">
 
     <EditText
+        android:id="@+id/edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
         android:layout_weight="1"
-        android:gravity="top"/>
+        android:gravity="top"
+        android:text="Hello World!" />
+
     <Button
 
+        android:id="@+id/run"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Run Test"/>
+        android:text="Run Test" />
 
 </LinearLayout>

@@ -134,27 +134,36 @@ public class GameState
     }
 
     //TODO: movePawn method
-    public boolean movePawn(int player, Direction dir, int x, int y)
+    public boolean movePawn(int player, Direction dir, boolean jump)
     {
         //moving player is in first slot of bothPlayers[]
-        int[][] bothPlayers = player == 0 ? new int[][]{p1Pos,p2Pos} : new int[][]{p2Pos,p1Pos};
+        //int[][] bothPlayers = (player == 0) ? new int[][]{p1Pos,p2Pos} : new int[][]{p2Pos,p1Pos};
+        int[][] bothPlayers = new int[][] {p1Pos, p2Pos};
         //check bounds
         if(player  != 0 || player != 1)
         {
             return false;
         }
-
+        //make sure the player can move
+        if(player != turn)
+        {
+            return false;
+        }
         //check if valid move
         //ie, check for walls, other players
         switch(dir){
             case UP:
+                moveUp(bothPlayers[player], bothPlayers[1-player],jump);
+                break;
             case DOWN:
-                moveUpDown(bothPlayers[0],bothPlayers[1],dir);
+                moveDown(bothPlayers[player], bothPlayers[1-player],jump);
                 break;
 
             case RIGHT:
+                moveRight(bothPlayers[player], bothPlayers[1-player], jump);
+                break;
             case LEFT:
-                moveRightLeft(bothPlayers[player],bothPlayers[1-player],dir);
+                moveLeft(bothPlayers[player],bothPlayers[1-player],jump);
                 break;
             default:
                 Log.i("movePawn","Something went wrong");
@@ -163,127 +172,325 @@ public class GameState
     }
 
     /**
-     * The function of moveUpDown is to try and move the current player's pawn
-     * @param currentPlayer active moving player
-     * @param otherPlayer other dude
-     * @param dir up or down
-     * @return succesful/valid move
+     * Method to move pawn up
+     * @param currentPlayer
+     * @param otherPlayer
+     * @param jump true move left, false move right
+     * @return
      */
-    private boolean moveUpDown(int[] currentPlayer, int[] otherPlayer, Direction dir)
+    public boolean moveUp(int[] currentPlayer, int[] otherPlayer, boolean jump)
     {
-        int mod = 1; //indicate direction of movement
-        //reverse mod if going down
-        if(dir == DOWN)
-        {
-            mod = -1;
-        }
-
-        if(currentPlayer[1] == 0 && mod == 1) //player is trying to move past top
-        {
-            return false;
-        }
-        else if(currentPlayer[1] == 8 && mod == -1) // player is trying to move past bot
-        {
-            return false;
-        }
-
+        int curX = currentPlayer[0];
+        int curY = currentPlayer[1];
+        int otherX = otherPlayer[0];
+        int otherY = otherPlayer[1];
         try
         {
-            //is there a player adjacent?
-            if(otherPlayer[0] == currentPlayer[0] && otherPlayer[1] == currentPlayer[1]-1*mod)
+            if(curY == 0) //player is trying to move past top
             {
-                //TODO: implement jumps cases
-                if(horzWalls[currentPlayer[0] - 2*mod][currentPlayer[1]] ||
-                        horzWalls[currentPlayer[0]][currentPlayer[1] - 2*mod] ||
-                        (otherPlayer[1]==0 && dir == UP) ||
-                        (otherPlayer[1]==8 && dir == DOWN))
+                return false;
+            }
+            //check if players are adjacent
+            if(otherX == curX && otherY-1 == curY)
+            {
+                if(horzWalls[curX-1][curY-2] || horzWalls[curX][curY-2])
                 {
-                    return false; //todo deal with diagonal moves
-                }
+                    if(jump) //jump diagonally to the left
+                    {
+                        //check if there are no blocking walls on left side
+                        if(vertWalls[curX-1][curY-1] || vertWalls[curX-1][curY-2])
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            currentPlayer[0]--;
+                            currentPlayer[1]--;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        //check if there are no blocking walls on right side
+                        if(vertWalls[curX][curY-1] || vertWalls[curX][curY-2])
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            currentPlayer[0]++;
+                            currentPlayer[1]--;
+                            return true;
+                        }
+                    } //elif for jump case
+
+                } //if for far walls
                 else
                 {
-                    //do move
-                    currentPlayer[1] = currentPlayer[1]-2*mod;
-                    return true;
+                    currentPlayer[1] -= 2; //jump over the adjacent player
                 }
-            } //if - adjacency check
-
-            //check if wall is directly adjacent
-            else if (horzWalls[currentPlayer[0] - 1*mod][currentPlayer[1]] ||
-                    horzWalls[currentPlayer[0]][currentPlayer[1] - 1*mod])
+            }//if for player adjacency
+            //check if there are walls in front
+            else if(horzWalls[curX-1][curY-1] || horzWalls[curX][curY-1])
             {
-                currentPlayer[1] = currentPlayer[1]-1*mod; //increment y
+                return false;
+            }
+            else
+            {
+                currentPlayer[1]--; //move player up one space
                 return true;
             }
         }
-        catch(Exception e)
+        catch(ArrayIndexOutOfBoundsException ai)
         {
             return false;
-            //todo handle a specific exception
         }
 
         return false;
     }
-
 
     /**
-     * The function of moveRightLeft is to try and move the current player's pawn
-     * @param currentPlayer active moving player
-     * @param otherPlayer other dude
-     * @param dir right or left
-     * @return succesful/valid move
+     * move pawn down one space
+     * @param currentPlayer
+     * @param otherPlayer
+     * @param jump true, move left, false move right
+     * @return
      */
-    private boolean moveRightLeft(int[] currentPlayer, int[] otherPlayer, Direction dir)
+    public boolean moveDown(int[] currentPlayer, int[] otherPlayer, boolean jump)
     {
-        int mod = 1; //indicate direction of movement
-
-        if(dir == RIGHT)
-        {
-            mod = -1;
-        }
-
-        if(currentPlayer[0] == 0 && mod == 1) //player is trying to move past top
-        {
-            return false;
-        }
-        else if(currentPlayer[0] == 8 && mod == -1)
-        {
-            return false;
-        }
-
+        int curX = currentPlayer[0];
+        int curY = currentPlayer[1];
+        int otherX = otherPlayer[0];
+        int otherY = otherPlayer[1];
         try
         {
-            //check for jump over other player case
-            if(otherPlayer[1] == currentPlayer[1] && otherPlayer[0] == currentPlayer[0]-1*mod)
+            if(curY == 8) //player is trying to move past bot
             {
-                //check if there are walls behind the adjacent players
-                if(vertWalls[currentPlayer[1] - 2*mod][currentPlayer[0]] ||
-                        vertWalls[currentPlayer[1]][currentPlayer[0] - 2*mod] ||
-                        otherPlayer[0]==0)
+                return false;
+            }
+            //check if players are adjacent
+            if(otherX == curX && otherY+1 == curY)
+            {
+                //check if far walls exist
+                if(horzWalls[curX-1][curY+1] || horzWalls[curX][curY+1])
                 {
-                    return false; //todo deal with diagonal moves
-                }
+                    if(jump) //jump diagonally to the left
+                    {
+                        //check if there are no blocking walls on left side
+                        if(vertWalls[curX-1][curY] || vertWalls[curX-1][curY+1])
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            currentPlayer[0]--;
+                            currentPlayer[1]++;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        //check if there are no blocking walls on right side
+                        if(vertWalls[curX][curY] || vertWalls[curX][curY+1])
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            currentPlayer[0]++;
+                            currentPlayer[1]++;
+                            return true;
+                        }
+                    } //elif for jump case
+
+                } //if for far walls
                 else
                 {
-                    currentPlayer[0] = currentPlayer[0]-2*mod;
-                    return true;
+                    currentPlayer[1] += 2; //jump over the adjacent player
                 }
-            }
-            else if (horzWalls[currentPlayer[1] - 1*mod][currentPlayer[0]] ||
-                    horzWalls[currentPlayer[1]][currentPlayer[0] - 1*mod])
+            }//if for player adjacency
+            //check if there are walls in front
+            else if(horzWalls[curX-1][curY] || horzWalls[curX][curY])
             {
-                currentPlayer[0] = currentPlayer[0]-1*mod; //increment y
+                return false;
+            }
+            else
+            {
+                currentPlayer[1]++; //move player up one space
                 return true;
             }
         }
-        catch(Exception e)
+        catch(ArrayIndexOutOfBoundsException ai)
         {
             return false;
-            //todo handle a specific exception
         }
+
         return false;
     }
 
+    /**
+     *
+     * @param currentPlayer
+     * @param otherPlayer
+     * @param jump
+     * @return
+     */
+    public boolean moveLeft(int[] currentPlayer, int[] otherPlayer, boolean jump)
+    {
+        int curX = currentPlayer[0];
+        int curY = currentPlayer[1];
+        int otherX = otherPlayer[0];
+        int otherY = otherPlayer[1];
+        try
+        {
+            if(curX == 0) //player is trying to move left side off board
+            {
+                return false;
+            }
+            //check if players are adjacent
+            if(otherX-1 == curX && otherY == curY)
+            {
+                //check if far walls exist
+                if(vertWalls[curX-2][curY-1] || vertWalls[curX-2][curY])
+                {
+                    if(jump) //jump diagonally to the left
+                    {
+                        //check if there are no blocking walls above
+                        if(horzWalls[curX-2][curY-1] || horzWalls[curX-1][curY-1])
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            currentPlayer[0]--;
+                            currentPlayer[1]--;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        //check if there are no blocking walls below
+                        if(horzWalls[curX-2][curY] || horzWalls[curX-1][curY])
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            currentPlayer[0]--;
+                            currentPlayer[1]++;
+                            return true;
+                        }
+                    } //elif for jump case
+
+                } //if for far walls
+                else
+                {
+                    currentPlayer[0] -= 2; //jump left over the adjacent player
+                }
+            }//if for player adjacency
+            //check if there are walls on left side
+            else if(vertWalls[curX-1][curY] || horzWalls[curX-1][curY-1])
+            {
+                return false;
+            }
+            else
+            {
+                currentPlayer[0]--; //move player left one space
+                return true;
+            }
+        }
+        catch(ArrayIndexOutOfBoundsException ai)
+        {
+            return false;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param currentPlayer
+     * @param otherPlayer
+     * @param jump
+     * @return
+     */
+    public boolean moveRight(int[] currentPlayer, int[] otherPlayer, boolean jump)
+    {
+        int curX = currentPlayer[0];
+        int curY = currentPlayer[1];
+        int otherX = otherPlayer[0];
+        int otherY = otherPlayer[1];
+        try
+        {
+            if(curX == 0) //player is trying to move left side off board
+            {
+                return false;
+            }
+            //check if players are adjacent
+            if(otherX+1 == curX && otherY == curY)
+            {
+                //check if far walls exist
+                if(vertWalls[curX+1][curY-1] || vertWalls[curX+1][curY])
+                {
+                    if(jump) //jump diagonally to the left
+                    {
+                        //check if there are no blocking walls above
+                        if(horzWalls[curX][curY-1] || horzWalls[curX+1][curY-1])
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            currentPlayer[0]++;
+                            currentPlayer[1]--;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        //check if there are no blocking walls below
+                        if(horzWalls[curX][curY] || horzWalls[curX+1][curY])
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            currentPlayer[0]++;
+                            currentPlayer[1]++;
+                            return true;
+                        }
+                    } //elif for jump case
+
+                } //if for far walls
+                else
+                {
+                    currentPlayer[0] += 2; //jump left over the adjacent player
+                }
+            }//if for player adjacency
+            //check if there are walls on right side
+            else if(vertWalls[curX][curY-1] || horzWalls[curX][curY])
+            {
+                return false;
+            }
+            else
+            {
+                currentPlayer[0]++; //move player left one space
+                return true;
+            }
+        }
+        catch(ArrayIndexOutOfBoundsException ai)
+        {
+            return false;
+        }
+
+        return false;
+    }
+
+    public boolean finalizeTurn()
+    {
+        turn = 1-turn;
+        return true;
+    }
 
     //TODO: placeWall method
     public boolean placeWall(int player, int x, int y)
